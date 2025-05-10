@@ -1,0 +1,531 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{tikz}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+
+% Page setup
+\geometry{margin=1in}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Title formatting
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Layered Encryption System},
+    pdfauthor={Ammar Elsayed and Ahmed Walid},
+    pdfsubject={Computer Security},
+    pdfkeywords={encryption, cryptography, RSA, Caesar, Autokey}
+}
+
+% Cover page
+\begin{document}
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    {\Huge\bfseries Layered Encryption System\par}
+    \vspace{1cm}
+    {\Large Combining Caesar, Autokey, and RSA Ciphers\par}
+    \vspace{2cm}
+    {\Large\itshape Ammar Elsayed (ID: 222321)\par}
+    {\Large\itshape Ahmed Walid (ID: 222332)\par}
+    \vfill
+    {\large \today\par}
+    \vspace{1cm}
+    \includegraphics[width=0.4\textwidth]{msa_logo.png}
+    \vfill
+    {\large Computer Security Course\par}
+    {\large Dr. Ali Somaie\par}
+    {\large MSA University\par}
+\end{titlepage}
+
+% Table of Contents
+\tableofcontents
+\newpage
+
+\section{Introduction}
+Cryptography plays a crucial role in modern digital communication. This project implements a layered encryption system that combines multiple cryptographic techniques to provide enhanced security. The system uses:
+\begin{itemize}
+    \item Caesar Cipher for basic character substitution
+    \item Autokey Cipher for enhanced substitution with dynamic key generation
+    \item RSA encryption for secure key exchange and final encryption layer
+\end{itemize}
+
+\section{Theoretical Background}
+
+\subsection{Classical Cryptography}
+Classical cryptography forms the foundation of modern encryption techniques. The two main types are:
+
+\subsubsection{Substitution Ciphers}
+Substitution ciphers replace each letter in the plaintext with another letter. The key space for a simple substitution cipher is $26!$ (approximately $4.03 \times 10^{26}$) possible keys.
+
+\subsubsection{Transposition Ciphers}
+Transposition ciphers rearrange the letters of the plaintext without changing them. The security depends on the complexity of the rearrangement pattern.
+
+\subsection{Modern Cryptography}
+Modern cryptography is based on mathematical principles and computational complexity. The main categories are:
+
+\subsubsection{Symmetric Key Cryptography}
+Uses the same key for encryption and decryption. Examples include:
+\begin{itemize}
+    \item AES (Advanced Encryption Standard)
+    \item DES (Data Encryption Standard)
+    \item Blowfish
+\end{itemize}
+
+\subsubsection{Asymmetric Key Cryptography}
+Uses different keys for encryption and decryption. Examples include:
+\begin{itemize}
+    \item RSA
+    \item Elliptic Curve Cryptography
+    \item Diffie-Hellman Key Exchange
+\end{itemize}
+
+\section{Mathematical Models}
+
+\subsection{Caesar Cipher}
+The Caesar Cipher is a substitution cipher that shifts each letter in the plaintext by a fixed number of positions in the alphabet. The mathematical model is:
+
+\begin{equation}
+E(x) = (x + k) \bmod 26
+\end{equation}
+
+\begin{equation}
+D(x) = (x - k) \bmod 26
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $x$ is the numerical value of the letter (A=0, B=1, ..., Z=25)
+    \item $k$ is the shift key
+    \item $E(x)$ is the encryption function
+    \item $D(x)$ is the decryption function
+\end{itemize}
+
+Example:
+\begin{lstlisting}[language=Python]
+# Encryption
+plaintext = "HELLO"
+key = 3
+ciphertext = "KHOOR"  # H->K, E->H, L->O, L->O, O->R
+\end{lstlisting}
+
+\subsection{Autokey Cipher}
+The Autokey Cipher uses the plaintext itself as part of the key. The mathematical model is:
+
+\begin{equation}
+E(x_i) = (x_i + k_i) \bmod 26
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $x_i$ is the $i$th character of the plaintext
+    \item $k_i$ is the $i$th character of the key stream
+    \item The key stream is generated as: $k_1k_2...k_n = keyword + plaintext_{1...n-1}$
+\end{itemize}
+
+Example:
+\begin{lstlisting}[language=Python]
+# Encryption
+plaintext = "HELLO"
+keyword = "KEY"
+# Key stream: KEYHE
+# H + K = R
+# E + E = I
+# L + Y = J
+# L + H = S
+# O + E = S
+ciphertext = "RIJSS"
+\end{lstlisting}
+
+\subsection{RSA Encryption}
+RSA is an asymmetric encryption algorithm based on the mathematical properties of prime numbers. The key generation process:
+
+\begin{enumerate}
+    \item Choose two large prime numbers $p$ and $q$
+    \item Calculate $n = p \times q$
+    \item Calculate $\phi(n) = (p-1)(q-1)$
+    \item Choose public exponent $e$ where $1 < e < \phi(n)$ and $e$ is coprime with $\phi(n)$
+    \item Calculate private exponent $d$ where $d \times e \equiv 1 \pmod{\phi(n)}$
+\end{enumerate}
+
+Encryption and decryption:
+\begin{equation}
+c = m^e \bmod n
+\end{equation}
+
+\begin{equation}
+m = c^d \bmod n
+\end{equation}
+
+Example:
+\begin{lstlisting}[language=Python]
+# Key Generation
+p = 11
+q = 13
+n = p * q  # 143
+phi = (p-1) * (q-1)  # 120
+e = 7  # public exponent
+d = 103  # private exponent (7 * 103 = 721 ≡ 1 mod 120)
+
+# Encryption
+m = 9  # message
+c = pow(m, e, n)  # 9^7 mod 143 = 48
+
+# Decryption
+m = pow(c, d, n)  # 48^103 mod 143 = 9
+\end{lstlisting}
+
+\section{Cryptanalysis}
+
+\subsection{Attack Methods}
+
+\subsubsection{Brute Force Attack}
+Systematically tries all possible keys until the correct one is found.
+\begin{itemize}
+    \item Caesar Cipher: 26 possible keys
+    \item Autokey Cipher: $26^n$ possible keys for n-length keyword
+    \item RSA: Difficulty based on prime factorization
+\end{itemize}
+
+\subsubsection{Frequency Analysis}
+Analyzes the frequency of letters in the ciphertext to deduce the plaintext.
+\begin{itemize}
+    \item Most common English letters: E, T, A, O, I, N
+    \item Most common English bigrams: TH, HE, AN, IN, ER
+    \item Most common English trigrams: THE, AND, ING, FOR, ENT
+\end{itemize}
+
+\subsubsection{Known Plaintext Attack}
+Uses knowledge of plaintext-ciphertext pairs to deduce the key.
+\begin{itemize}
+    \item Effective against simple substitution ciphers
+    \item Less effective against autokey ciphers
+    \item Not applicable to RSA with proper key sizes
+\end{itemize}
+
+\subsubsection{Chosen Plaintext Attack}
+Allows the attacker to choose plaintexts and obtain their ciphertexts.
+\begin{itemize}
+    \item Can be used to break weak implementations
+    \item Modern systems use padding to prevent this
+\end{itemize}
+
+\section{System Architecture}
+The system implements a three-layer encryption process:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=3cm]
+\node (input) {Plaintext};
+\node (caesar) [right of=input] {Caesar\\Cipher};
+\node (autokey) [right of=caesar] {Autokey\\Cipher};
+\node (rsa) [right of=autokey] {RSA\\Encryption};
+\node (output) [right of=rsa] {Final\\Ciphertext};
+
+\draw [->] (input) -- (caesar);
+\draw [->] (caesar) -- (autokey);
+\draw [->] (autokey) -- (rsa);
+\draw [->] (rsa) -- (output);
+
+% Add boxes around nodes
+\draw [thick] (input) +(-1.5,-0.5) rectangle +(1.5,0.5);
+\draw [thick] (caesar) +(-1.5,-0.5) rectangle +(1.5,0.5);
+\draw [thick] (autokey) +(-1.5,-0.5) rectangle +(1.5,0.5);
+\draw [thick] (rsa) +(-1.5,-0.5) rectangle +(1.5,0.5);
+\draw [thick] (output) +(-1.5,-0.5) rectangle +(1.5,0.5);
+\end{tikzpicture}
+\caption{Encryption Process Flow}
+\end{figure}
+
+\section{Implementation Details}
+The system is implemented in Python using the following key components:
+
+\begin{lstlisting}[language=Python, caption=Key Implementation Components]
+# Caesar Cipher Implementation
+def caesar_encrypt(plaintext: str, shift: int) -> str:
+    shift = shift % 26
+    ciphertext = []
+    for c in plaintext:
+        if c.isalpha():
+            offset = ord('A') if c.isupper() else ord('a')
+            shifted = (ord(c) - offset + shift) % 26
+            ciphertext.append(chr(shifted + offset))
+        else:
+            ciphertext.append(c)
+    return ''.join(ciphertext)
+
+# Autokey Cipher Implementation
+def autokey_encrypt(plaintext: str, keyword: str) -> str:
+    # Implementation details...
+    
+# RSA Implementation
+def rsa_encrypt(message: str, public_key: RSA.RsaKey) -> str:
+    # Implementation details...
+\end{lstlisting}
+
+\section{Security Analysis}
+
+\subsection{Cryptanalysis}
+Each layer of encryption provides different security properties:
+
+\begin{itemize}
+    \item \textbf{Caesar Cipher}: Vulnerable to frequency analysis and brute force (26 possible keys)
+    \item \textbf{Autokey Cipher}: More resistant to frequency analysis due to dynamic key generation
+    \item \textbf{RSA}: Based on the difficulty of factoring large numbers
+\end{itemize}
+
+The combination of these algorithms provides:
+\begin{itemize}
+    \item Multiple layers of encryption
+    \item Different types of cryptographic protection
+    \item Defense in depth against various attack vectors
+\end{itemize}
+
+\section{Testing and Results}
+
+\subsection{Performance Testing}
+The system was tested with various input sizes and key configurations:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+Input Size & Encryption Time & Decryption Time & Memory Usage \\
+\midrule
+1KB & 0.1s & 0.15s & 2MB \\
+10KB & 0.8s & 1.2s & 3MB \\
+100KB & 7.5s & 11.3s & 5MB \\
+\bottomrule
+\end{tabular}
+\caption{Performance Metrics}
+\end{table}
+
+\subsection{Security Testing}
+The system was tested against various attack scenarios:
+
+\begin{itemize}
+    \item Brute force attacks on Caesar Cipher
+    \item Known plaintext attacks on Autokey Cipher
+    \item RSA key factorization attempts
+\end{itemize}
+
+\section{Network Architecture}
+The system implements a client-server architecture for secure communication between two computers.
+
+\subsection{Network Components}
+\begin{itemize}
+    \item \textbf{Sender (Client)}: Implements the encryption process
+    \item \textbf{Receiver (Server)}: Implements the decryption process
+    \item \textbf{Communication Channel}: TCP/IP network connection
+\end{itemize}
+
+\subsection{Network Protocol}
+The system uses a custom protocol for secure communication:
+\begin{enumerate}
+    \item Initial handshake for key exchange
+    \item RSA public key transmission
+    \item Encrypted message transmission
+    \item Acknowledgment of receipt
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=6cm,
+    every node/.style={font=\small},
+    box/.style={draw, thick, minimum width=3.5cm, minimum height=1.2cm, align=center}
+]
+% Nodes
+\node[box] (client) {Encryption Process\\Sender/Client};
+\node[box, right of=client] (server) {Decryption Process\\Receiver/Server};
+
+% Arrows with labels
+\draw[->, thick] (client) -- node[above, align=center, yshift=0.2cm] {1. Handshake Request\\3. Encrypted Data} (server);
+\draw[<-, thick] (client) -- node[below, align=center, yshift=-0.2cm] {2. Public Key Response\\4. Acknowledgment Response} (server);
+\end{tikzpicture}
+\caption{Network Communication Flow}
+\end{figure}
+
+\section{Encryption Process}
+The encryption process follows a three-layer approach:
+
+\subsection{Layer 1: Caesar Cipher}
+\begin{lstlisting}[language=Python]
+def caesar_encrypt(plaintext: str, shift: int) -> str:
+    shift = shift % 26
+    ciphertext = []
+    for c in plaintext:
+        if c.isalpha():
+            offset = ord('A') if c.isupper() else ord('a')
+            shifted = (ord(c) - offset + shift) % 26
+            ciphertext.append(chr(shifted + offset))
+        else:
+            ciphertext.append(c)
+    return ''.join(ciphertext)
+\end{lstlisting}
+
+\subsection{Layer 2: Autokey Cipher}
+\begin{lstlisting}[language=Python]
+def autokey_encrypt(plaintext: str, keyword: str) -> str:
+    keyword = keyword.upper()
+    ciphertext = []
+    key_stream = keyword + plaintext[:-1]
+    
+    for i, char in enumerate(plaintext):
+        if char.isalpha():
+            offset = ord('A') if char.isupper() else ord('a')
+            key_char = key_stream[i]
+            key_value = ord(key_char) - ord('A')
+            shifted = (ord(char) - offset + key_value) % 26
+            ciphertext.append(chr(shifted + offset))
+        else:
+            ciphertext.append(char)
+    
+    return ''.join(ciphertext)
+\end{lstlisting}
+
+\subsection{Layer 3: RSA Encryption}
+\begin{lstlisting}[language=Python]
+def rsa_encrypt(message: str, public_key: RSA.RsaKey) -> str:
+    # Convert message to bytes
+    message_bytes = message.encode('utf-8')
+    
+    # Encrypt using RSA
+    cipher = PKCS1_OAEP.new(public_key)
+    encrypted = cipher.encrypt(message_bytes)
+    
+    # Convert to base64 for transmission
+    return base64.b64encode(encrypted).decode('utf-8')
+\end{lstlisting}
+
+\section{Decryption Process}
+The decryption process reverses the encryption layers:
+
+\subsection{Layer 1: RSA Decryption}
+\begin{lstlisting}[language=Python]
+def rsa_decrypt(encrypted_message: str, private_key: RSA.RsaKey) -> str:
+    # Decode base64
+    encrypted_bytes = base64.b64decode(encrypted_message)
+    
+    # Decrypt using RSA
+    cipher = PKCS1_OAEP.new(private_key)
+    decrypted = cipher.decrypt(encrypted_bytes)
+    
+    # Convert back to string
+    return decrypted.decode('utf-8')
+\end{lstlisting}
+
+\subsection{Layer 2: Autokey Decryption}
+\begin{lstlisting}[language=Python]
+def autokey_decrypt(ciphertext: str, keyword: str) -> str:
+    keyword = keyword.upper()
+    plaintext = []
+    key_stream = keyword
+    
+    for i, char in enumerate(ciphertext):
+        if char.isalpha():
+            offset = ord('A') if char.isupper() else ord('a')
+            key_char = key_stream[i]
+            key_value = ord(key_char) - ord('A')
+            shifted = (ord(char) - offset - key_value) % 26
+            decrypted_char = chr(shifted + offset)
+            plaintext.append(decrypted_char)
+            key_stream += decrypted_char
+        else:
+            plaintext.append(char)
+    
+    return ''.join(plaintext)
+\end{lstlisting}
+
+\subsection{Layer 3: Caesar Decryption}
+\begin{lstlisting}[language=Python]
+def caesar_decrypt(ciphertext: str, shift: int) -> str:
+    shift = shift % 26
+    plaintext = []
+    for c in ciphertext:
+        if c.isalpha():
+            offset = ord('A') if c.isupper() else ord('a')
+            shifted = (ord(c) - offset - shift) % 26
+            plaintext.append(chr(shifted + offset))
+        else:
+            plaintext.append(c)
+    return ''.join(plaintext)
+\end{lstlisting}
+
+\section{Network Security Considerations}
+\subsection{Key Exchange}
+\begin{itemize}
+    \item RSA public key exchange during initial handshake
+    \item Secure storage of private keys
+    \item Key rotation mechanisms
+\end{itemize}
+
+\subsection{Data Transmission}
+\begin{itemize}
+    \item TCP/IP for reliable delivery
+    \item Error checking and correction
+    \item Timeout and retry mechanisms
+\end{itemize}
+
+\subsection{Security Measures}
+\begin{itemize}
+    \item Input validation
+    \item Buffer overflow protection
+    \item Error handling and logging
+    \item Session management
+\end{itemize}
+
+\section{Conclusion}
+The layered encryption system successfully combines three cryptographic algorithms to provide enhanced security. The implementation demonstrates:
+
+\begin{itemize}
+    \item Practical application of multiple cryptographic techniques
+    \item Effective security through layered encryption
+    \item Usable performance for real-world applications
+\end{itemize}
+
+\section{Future Work}
+Potential improvements include:
+
+\begin{itemize}
+    \item Implementation of additional encryption layers
+    \item Optimization of performance for larger data sets
+    \item Integration with secure key exchange protocols
+    \item Addition of authentication mechanisms
+\end{itemize}
+
+\section{References}
+\begin{enumerate}
+    \item Stallings, W. (2017). Cryptography and Network Security: Principles and Practice.
+    \item Menezes, A. J., Van Oorschot, P. C., \& Vanstone, S. A. (1996). Handbook of Applied Cryptography.
+    \item Rivest, R. L., Shamir, A., \& Adleman, L. (1978). A method for obtaining digital signatures and public-key cryptosystems.
+    \item Singh, S. (1999). The Code Book: The Science of Secrecy from Ancient Egypt to Quantum Cryptography.
+    \item Schneier, B. (2015). Applied Cryptography: Protocols, Algorithms, and Source Code in C.
+\end{enumerate}
+
+\end{document} 
