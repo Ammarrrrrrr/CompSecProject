@@ -16,15 +16,14 @@ This project implements a secure, multi-layered encryption system combining clas
 ├── encrypt_sender.py         # Sender/client application
 ├── decrypt_receiver.py       # Receiver/server application
 ├── report.tex                # LaTeX report (with diagrams, theory, and results)
-├── create_presentation.py    # Script to generate PowerPoint presentation
+├── presentation.pptx         # PowerPoint presentation
 ├── requirements.txt          # Python dependencies
 ├── README.md                 # This file
 ```
 
 ## Requirements
 - Python 3.7+
-- `python-pptx` (for presentation generation)
-- LaTeX distribution (for compiling the report)
+
 
 Install Python dependencies:
 ```bash
@@ -43,19 +42,6 @@ pip install -r requirements.txt
   ```
 - Follow the prompts to input messages and keys.
 
-### 2. Generate the Report
-- Edit `report.tex` as needed (add your logo, etc.)
-- Compile with:
-  ```bash
-  pdflatex report.tex
-  ```
-
-### 3. Generate the PowerPoint Presentation
-- Run:
-  ```bash
-  python create_presentation.py
-  ```
-- Open `presentation.pptx` in PowerPoint or compatible software.
 
 ## Authors
 - **Ammar Elsayed** (ID: 222321)
